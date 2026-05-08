@@ -1,0 +1,27 @@
+services:
+  cho-dau-moi:
+    container_name: cho-dau-moi
+    image: cho-dau-moi
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: https://drlvagucxaoxuxohrrsb.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRybHZhZ3VjeGFveHV4b2hycnNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMzUwNzgsImV4cCI6MjA5MzcxMTA3OH0.sBYwjSCG2_fv0Sw8Ghr0Mo6T6rhKQ2UK4mMVNZoBrXA
+
+    network_mode: "host"
+
+    env_file:
+      - .env
+
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - GODEBUG=netdns=go
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3022"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
