@@ -80,6 +80,7 @@
   cursor: pointer;
   transition: background 0.15s;
   border-bottom: 1px solid var(--border-light);
+  text-decoration: none;
 }
 
 .subCatItem:hover {

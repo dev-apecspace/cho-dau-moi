@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-interface Category { id: string; name: string; icon: string; }
+interface Category { id: string; name: string; icon: string; parent_id: string | null; }
 interface Supplier { id: string; name: string; }
 
 export default function AdminProductForm() {
@@ -20,6 +20,8 @@ export default function AdminProductForm() {
   const [images, setImages] = useState<{ id?: string; url: string; file?: File }[]>([]);
   const [specs, setSpecs] = useState<{ label: string; value: string }[]>([]);
   const [tiers, setTiers] = useState<{ min_qty: number; max_qty: number | null; price: number }[]>([]);
+  const [catOpen, setCatOpen] = useState(false);
+  const catRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
     name: '', slug: '', description: '', price: 0, original_price: 0,
@@ -29,9 +31,19 @@ export default function AdminProductForm() {
   });
 
   useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (catRef.current && !catRef.current.contains(event.target as Node)) {
+        setCatOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
     async function init() {
       const [catRes, supRes] = await Promise.all([
-        supabase.from('categories').select('id, name, icon').order('sort_order'),
+        supabase.from('categories').select('id, name, icon, parent_id').order('sort_order'),
         supabase.from('suppliers').select('id, name').order('name'),
       ]);
       setCategories(catRes.data || []);
@@ -266,10 +278,53 @@ export default function AdminProductForm() {
             </div>
             <div className="admin-field">
               <label className="admin-label">Danh mục</label>
-              <select className="admin-select" value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })}>
-                <option value="">— Chọn danh mục —</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-              </select>
+              <div className="admin-custom-select" ref={catRef}>
+                <div className="admin-custom-select-trigger" onClick={() => setCatOpen(!catOpen)}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {form.category_id ? (
+                      (() => {
+                        const cat = categories.find(c => c.id === form.category_id);
+                        if (!cat) return '— Chọn danh mục —';
+                        return (
+                          <>
+                            {cat.icon && cat.icon.startsWith('http') ? (
+                              <img src={cat.icon} alt="" className="admin-custom-select-img" />
+                            ) : (
+                              <span className="admin-custom-select-icon">{cat.icon || '📦'}</span>
+                            )}
+                            {cat.name}
+                          </>
+                        );
+                      })()
+                    ) : '— Chọn danh mục —'}
+                  </div>
+                  <span>{catOpen ? '▲' : '▼'}</span>
+                </div>
+                {catOpen && (
+                  <div className="admin-custom-select-options">
+                    <div 
+                      className={`admin-custom-select-option ${!form.category_id ? 'selected' : ''}`}
+                      onClick={() => { setForm({ ...form, category_id: '' }); setCatOpen(false); }}
+                    >
+                      — Chọn danh mục —
+                    </div>
+                    {categories.filter(c => c.parent_id !== null).map(c => (
+                      <div 
+                        key={c.id} 
+                        className={`admin-custom-select-option ${form.category_id === c.id ? 'selected' : ''}`}
+                        onClick={() => { setForm({ ...form, category_id: c.id }); setCatOpen(false); }}
+                      >
+                        {c.icon && c.icon.startsWith('http') ? (
+                          <img src={c.icon} alt="" className="admin-custom-select-img" />
+                        ) : (
+                          <span className="admin-custom-select-icon">{c.icon || '📦'}</span>
+                        )}
+                        {c.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="admin-field">
               <label className="admin-label">Nhà cung cấp</label>

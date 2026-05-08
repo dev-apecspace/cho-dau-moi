@@ -30,6 +30,7 @@ export default function BottomNav() {
               rel="noopener noreferrer"
               id={`nav-${item.label.toLowerCase().replace(/\s/g, '-')}`}
               className="nav-item"
+              style={{ textDecoration: 'none' }}
             >
               <NavIcon name={item.label} active={false} />
               <span className="nav-label">{item.label}</span>

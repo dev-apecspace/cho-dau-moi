@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import styles from './san-pham.module.css';
 import ScrollCarousel from '@/components/ui/ScrollCarousel';
+import ComingSoonPopup from '@/components/ui/ComingSoonPopup';
 
 interface Product {
   id: string;
@@ -44,6 +45,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   const [showAllDesc, setShowAllDesc] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [settings, setSettings] = useState<Record<string, any>>({});
+  const [comingSoon, setComingSoon] = useState<{ open: boolean; feature: string }>({ open: false, feature: '' });
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,6 +154,30 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [product]);
 
+  // Handle native share
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.name,
+          text: `Xem sản phẩm ${product?.name} trên Chợ Đầu Mối`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Đã sao chép liên kết vào bộ nhớ tạm!');
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
+    }
+  };
+
   if (loading) return (
     <div className="admin-loading" style={{ position: 'fixed' }}>
       <div className="loader-nongsan">
@@ -184,19 +210,19 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
         </Link>
         <span className={styles.headerTitle}>Chi tiết sản phẩm</span>
         <div className={styles.headerActions}>
-          <button className={styles.iconBtn} id="product-share-btn" aria-label="Chia sẻ">
+          <button className={styles.iconBtn} id="product-share-btn" aria-label="Chia sẻ" onClick={handleShare}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
           </button>
-          <Link href="/gio-hang" className={styles.iconBtn} id="product-cart-btn" aria-label="Giỏ hàng">
+          {/* <Link href="/gio-hang" className={styles.iconBtn} id="product-cart-btn" aria-label="Giỏ hàng">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
             <span className={styles.cartBadge}>3</span>
-          </Link>
+          </Link> */}
         </div>
       </header>
 
@@ -447,20 +473,12 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
       {/* ── Bottom Action Bar ── */}
       <footer className={styles.bottomBar}>
         <div className={styles.barActions}>
-          <button className={styles.chatBtn} id="product-chat-btn">
+          <button className={styles.chatBtn} onClick={() => setComingSoon({ open: true, feature: 'Tính năng Chat' })}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
             </svg>
             <span>Chat</span>
           </button>
-          <div className={styles.barDivider} />
-          <Link href="/gio-hang" className={styles.chatBtn}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
-            <span>Giỏ hàng</span>
-          </Link>
         </div>
         <div className={styles.barButtons}>
           <a href={`tel:${settings.site_phone || '19003165'}`} className={styles.buyNowBtn} id="product-contact-btn">
@@ -468,6 +486,12 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           </a>
         </div>
       </footer>
+
+      <ComingSoonPopup 
+        isOpen={comingSoon.open} 
+        onClose={() => setComingSoon({ ...comingSoon, open: false })} 
+        featureName={comingSoon.feature} 
+      />
     </div>
   );
 }

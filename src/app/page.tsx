@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import styles from './home.module.css';
 import ScrollCarousel from '@/components/ui/ScrollCarousel';
 import LoadingNongSan from '@/components/ui/LoadingNongSan';
+import ComingSoonPopup from '@/components/ui/ComingSoonPopup';
 
 interface Banner { id: string; title: string; subtitle: string; image_url: string; link_url: string; bg_gradient: string; emoji: string; }
 interface Category { id: string; icon: string; name: string; }
@@ -23,6 +24,9 @@ export default function HomePage() {
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [settings, setSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  const [comingSoon, setComingSoon] = useState<{ open: boolean; feature: string }>({ open: false, feature: '' });
+
+  const openComingSoon = (feature: string) => setComingSoon({ open: true, feature });
 
   useEffect(() => {
     async function loadData() {
@@ -107,11 +111,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.headerActions}>
-            <button className={styles.iconBtn} id="home-notification-btn">🔔</button>
-            <Link href="/gio-hang" id="home-cart-btn" className={styles.iconBtn}>
-              🛒
-              <span className={styles.cartBadge}>3</span>
-            </Link>
+            <button className={styles.iconBtn} onClick={() => openComingSoon('Tính năng thông báo')}>🔔</button>
           </div>
         </div>
         <div className={styles.headerSearch}>
@@ -206,7 +206,7 @@ export default function HomePage() {
         </div>
         <div className={styles.categoryGrid}>
           {categories.map((c) => (
-            <Link href="/danh-muc" key={c.id} className={styles.categoryItem} id={`category-${c.id}`}>
+            <Link href={`/danh-muc/${c.id}`} key={c.id} className={styles.categoryItem} id={`category-${c.id}`}>
               <div className={styles.categoryIcon}>
                 {c.icon && c.icon.startsWith('http') ? (
                   <img src={c.icon} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -246,7 +246,7 @@ export default function HomePage() {
       <section className="page-section">
         <div className="section-header">
           <span className="section-title">SẢN PHẨM HÀNG NGÀY</span>
-          <span className="section-more">Xem tất cả &rsaquo;</span>
+          <Link href="/san-pham?type=daily" className="section-more">Xem tất cả &rsaquo;</Link>
         </div>
         <div className={styles.dailyGrid}>
           {dailyProducts.map((p) => (
@@ -267,11 +267,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              <button className={styles.dailyCartBtn} onClick={(e) => e.preventDefault()}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-              </button>
             </Link>
           ))}
         </div>
@@ -315,7 +310,7 @@ export default function HomePage() {
         <section className="page-section">
           <div className="section-header">
             <span className="section-title">MÃ GIẢM GIÁ</span>
-            <span className="section-more">Xem tất cả &rsaquo;</span>
+            <Link href="/uu-dai" className="section-more">Xem tất cả &rsaquo;</Link>
           </div>
           <ScrollCarousel itemWidth={260} sidePadding={16}>
             {vouchers.map((v) => (
@@ -360,7 +355,7 @@ export default function HomePage() {
       <section className="page-section">
         <div className="section-header">
           <span className="section-title">SẢN PHẨM BÁN CHẠY</span>
-          <span className="section-more">Xem tất cả &rsaquo;</span>
+          <Link href="/san-pham?type=best" className="section-more">Xem tất cả &rsaquo;</Link>
         </div>
         <ScrollCarousel itemWidth={140} sidePadding={16} showDots>
           {bestSellers.map((p) => (
@@ -379,7 +374,6 @@ export default function HomePage() {
                     <span className="star">★</span>
                     <span className="text-xs text-secondary-txt">{p.rating}</span>
                   </div>
-                  <button className="add-cart-btn" id={`add-best-${p.id}`} onClick={(e) => { e.preventDefault(); /* Handle add cart */ }}>+</button>
                 </div>
               </div>
             </Link>
@@ -405,6 +399,12 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <ComingSoonPopup 
+        isOpen={comingSoon.open} 
+        onClose={() => setComingSoon({ ...comingSoon, open: false })} 
+        featureName={comingSoon.feature} 
+      />
     </div>
   );
 }
