@@ -1,0 +1,121 @@
+.wrapper {
+  position: relative;
+  /* Do NOT clip here — arrows need to float outside track */
+}
+
+/* Scroll track */
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 6px;
+  position: relative;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each direct child gets snap alignment */
+.track > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Fade-out edges — subtle hint only, never covers card text */
+.fade {
+  position: absolute;
+  top: 0;
+  bottom: 22px;
+  /* Narrow enough to not overlap card content */
+  width: 20px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fade.visible {
+  opacity: 1;
+}
+
+/* Left fade: only appears after user has scrolled right */
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(to right, rgba(255,255,255,0.75), transparent);
+}
+
+/* Right fade: hints at more items beyond the edge */
+.fadeRight {
+  right: 0;
+  background: linear-gradient(to left, rgba(255,255,255,0.75), transparent);
+}
+
+/* Arrow buttons — compact, floating above image zone */
+.arrow {
+  position: absolute;
+  top: 28%;
+  transform: translateY(-50%);
+  z-index: 6;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(42,122,42,0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2a7a2a;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+  padding: 0;
+}
+
+.arrow:hover {
+  background: #e8f5e9;
+  box-shadow: 0 3px 12px rgba(42,122,42,0.25);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* Left arrow: pushed inside sidePadding zone (not over card content) */
+.arrowLeft {
+  left: 3px;
+}
+
+/* Right arrow: sits just inside right padding edge */
+.arrowRight {
+  right: 3px;
+}
+
+/* Dots */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding-top: 8px;
+  padding-bottom: 2px;
+}
+
+.dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d0d0d0;
+  transition: width 0.25s ease, background 0.25s ease, border-radius 0.25s ease;
+}
+
+.dotActive {
+  width: 16px;
+  border-radius: 3px;
+  background: #2a7a2a;
+}
