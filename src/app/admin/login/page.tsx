@@ -102,7 +102,7 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="admin@chodaumoi.vn"
+              placeholder="abc@gmail.com"
               required
               style={{
                 width: '100%', padding: '12px 14px', border: '1.5px solid #e0e0e0',
@@ -149,14 +149,6 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        {/* Hint */}
-        <div style={{ textAlign: 'center', marginTop: 24, padding: '12px', background: '#f8fffe', borderRadius: 10, border: '1px solid #e8f5e9' }}>
-          <div style={{ fontSize: 12, color: '#666' }}>
-            <strong>Tài khoản mặc định:</strong><br />
-            Email: <code style={{ background: '#e8f5e9', padding: '1px 5px', borderRadius: 4 }}>admin@chodaumoi.vn</code><br />
-            Mật khẩu: <code style={{ background: '#e8f5e9', padding: '1px 5px', borderRadius: 4 }}>admin123</code>
-          </div>
-        </div>
       </div>
     </div>
   );
