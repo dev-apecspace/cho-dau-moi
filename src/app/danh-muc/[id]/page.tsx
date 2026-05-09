@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import styles from './category-list.module.css';
 import LoadingNongSan from '@/components/ui/LoadingNongSan';
+import { formatProductPrice } from '@/lib/price';
 
 interface Product {
   id: string;
@@ -379,8 +380,7 @@ export default function CategoryProductsPage() {
                   <div className={styles.bottom}>
                     <div>
                       <div className={styles.price}>
-                        {p.price.toLocaleString('vi-VN')}₫
-                        <span className={styles.priceUnit}>/{p.unit}</span>
+                        {formatProductPrice(p.price, p.unit)}
                       </div>
                       {p.original_price > 0 && p.original_price > p.price && (
                         <div className={styles.originalPrice}>{p.original_price.toLocaleString('vi-VN')}₫</div>
@@ -440,8 +440,7 @@ export default function CategoryProductsPage() {
                   <div className={styles.listBottom}>
                     <div>
                       <span className={styles.listPrice}>
-                        {p.price.toLocaleString('vi-VN')}₫
-                        <span className={styles.listPriceUnit}>/{p.unit}</span>
+                        {formatProductPrice(p.price, p.unit)}
                       </span>
                       {p.original_price > 0 && p.original_price > p.price && (
                         <div className={styles.originalPrice}>{p.original_price.toLocaleString('vi-VN')}₫</div>

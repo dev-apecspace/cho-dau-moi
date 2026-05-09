@@ -119,7 +119,7 @@ export default function AdminSanPham() {
                     </td>
                     <td>{p.categories?.name || '—'}</td>
                     <td style={{ fontWeight: 700, color: '#e53935' }}>
-                      {p.price?.toLocaleString('vi-VN')}₫
+                      {p.price > 0 ? `${p.price.toLocaleString('vi-VN')}₫` : 'Liên hệ'}
                     </td>
                     <td>{p.sold_count}</td>
                     <td>

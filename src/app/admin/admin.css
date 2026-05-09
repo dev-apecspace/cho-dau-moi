@@ -298,6 +298,11 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
+.admin-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
 .admin-table td {
   padding: 12px 16px;
   font-size: 13px;
@@ -310,15 +315,16 @@
   background: #fafffe;
 }
 
+.admin-table th:first-child,
+.admin-table td:first-child {
+  width: 220px;
+}
+
 .admin-table-img {
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   border-radius: 10px;
   background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
   overflow: hidden;
 }
 
@@ -326,6 +332,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .admin-badge {
@@ -851,4 +858,37 @@
   .admin-form-grid {
     grid-template-columns: 1fr;
   }
+}
+  
+/* Image Upload Mini */  
+.admin-image-upload-mini {  
+  position: relative;  
+  width: 100%;  
+  height: 80px;  
+  border: 2px dashed #ddd;  
+  border-radius: 8px;  
+  display: flex;  
+  align-items: center;  
+  justify-content: center;  
+  overflow: hidden;  
+  transition: border-color 0.2s;  
+  cursor: pointer;  
+}  
+.admin-image-upload-mini:hover {  
+  border-color: #2a7a2a;  
+}  
+.admin-image-upload-mini input[type="file"] {  
+  position: absolute;  
+  top: 0;  
+  left: 0;  
+  width: 100%;  
+  height: 100%;  
+  opacity: 0;  
+  cursor: pointer;  
+  z-index: 10;
+}  
+.admin-image-placeholder {  
+  font-size: 11px;  
+  color: #999;  
+  font-weight: 500;  
 }

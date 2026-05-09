@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import styles from './products.module.css';
 import LoadingNongSan from '@/components/ui/LoadingNongSan';
+import { formatProductPrice } from '@/lib/price';
 
 interface Product {
   id: string;
@@ -20,6 +21,7 @@ interface Product {
 export default function AllProductsPage() {
   const searchParams = useSearchParams();
   const type = searchParams.get('type'); // 'daily', 'best', 'featured'
+  const queryParam = searchParams.get('q'); // search query
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('Tất cả sản phẩm');
@@ -27,12 +29,16 @@ export default function AllProductsPage() {
   useEffect(() => {
     async function loadProducts() {
       try {
+        setLoading(true);
         let query = supabase
           .from('products')
           .select('*, product_images(image_url)')
           .eq('is_active', true);
 
-        if (type === 'daily') {
+        if (queryParam) {
+          query = query.ilike('name', `%${queryParam}%`);
+          setTitle(`Kết quả cho "${queryParam}"`);
+        } else if (type === 'daily') {
           query = query.eq('is_daily', true);
           setTitle('Sản phẩm hàng ngày');
         } else if (type === 'best') {
@@ -41,6 +47,8 @@ export default function AllProductsPage() {
         } else if (type === 'featured') {
           query = query.eq('is_featured', true);
           setTitle('Sản phẩm tiêu biểu');
+        } else {
+          setTitle('Tất cả sản phẩm');
         }
 
         const { data, error } = await query.order('sort_order');
@@ -60,7 +68,7 @@ export default function AllProductsPage() {
       }
     }
     loadProducts();
-  }, [type]);
+  }, [type, queryParam]);
 
   if (loading) return <LoadingNongSan text="Đang tải sản phẩm..." items={["🥬", "🥕", "🍅"]} />;
 
@@ -89,7 +97,9 @@ export default function AllProductsPage() {
               <div className={styles.name}>{p.name}</div>
               <div className={styles.unit}>{p.min_order}</div>
               <div className={styles.bottom}>
-                <div className={styles.price}>{p.price.toLocaleString('vi-VN')}₫/{p.unit}</div>
+                <div className={styles.price}>
+                  {formatProductPrice(p.price, p.unit)}
+                </div>
                 <div className={styles.meta}>
                   <span className="star">★</span>
                   <span>{p.rating}</span>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import styles from './danh-muc.module.css';
+import { formatProductPrice } from '@/lib/price';
 
 interface Category {
   id: string;
@@ -210,7 +211,9 @@ export default function DanhMucPage() {
                       </div>
                       <div className={styles.bestInfo}>
                         <div className={styles.bestName}>{p.name}</div>
-                        <div className={styles.bestPrice}>{p.price.toLocaleString('vi-VN')}₫<span className={styles.bestUnit}>/{p.unit}</span></div>
+                        <div className={styles.bestPrice}>
+                          {formatProductPrice(p.price, p.unit)}
+                        </div>
                         <div className={styles.bestMeta}>
                           <div className="flex items-center gap-1">
                             <span className="star">★</span>

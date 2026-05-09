@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import styles from './san-pham.module.css';
 import ScrollCarousel from '@/components/ui/ScrollCarousel';
 import ComingSoonPopup from '@/components/ui/ComingSoonPopup';
+import { formatProductPrice } from '@/lib/price';
 
 interface Product {
   id: string;
@@ -293,8 +294,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
         <div className={styles.priceRow}>
           <div>
             <div className={styles.priceMain}>
-              {currentTier.price.toLocaleString('vi-VN')}₫
-              <span className={styles.priceUnit}>/{product.unit}</span>
+              {formatProductPrice(currentTier.price, product.unit)}
             </div>
             {product.original_price > product.price && (
               <div className={styles.priceOld}>
@@ -355,7 +355,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 <div className={styles.tierQty}>
                   {tier.max ? `${tier.min}–${tier.max} ${product.unit}` : `≥${tier.min} ${product.unit}`}
                 </div>
-                <div className={styles.tierPrice}>{tier.price.toLocaleString('vi-VN')}₫</div>
+                <div className={styles.tierPrice}>
+                  {formatProductPrice(tier.price)}
+                </div>
                 {i > 0 && (
                   <div className={styles.tierSave}>
                     Tiết kiệm {Math.round((1 - tier.price / product.priceTiers[0].price) * 100)}%
@@ -456,7 +458,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 </div>
                 <div className="product-card-body">
                   <div className="product-card-name">{p.name}</div>
-                  <div className="product-card-price">{p.price.toLocaleString()}₫<span className="product-card-unit">/{p.unit}</span></div>
+                  <div className="product-card-price">
+                    {formatProductPrice(p.price, p.unit)}
+                  </div>
                   <div className="product-card-footer">
                     <div className="flex items-center gap-1">
                       <span className="star">★</span>

@@ -127,5 +127,13 @@ INSERT INTO site_settings (key, value) VALUES
 ('shipping_note', '{"v": "Giao hàng toàn quốc"}'::jsonb),
 ('hero_title', '{"v": "NGUỒN HÀNG TẬN GỐC"}'::jsonb),
 ('hero_subtitle', '{"v": "GIÁ SỈ TỐT NHẤT"}'::jsonb),
-('hero_features', '{"v": "Hàng tận gốc|Giao hàng toàn quốc|Đổi trả dễ dàng"}'::jsonb)
+('hero_features', '{"v": "Hàng tận gốc|Giao hàng toàn quốc|Đổi trả dễ dàng"}'::jsonb),
+('hero_features_subs', '{"v": "Nguồn gốc rõ ràng|Nhanh chóng tiện lợi|Hỗ trợ 24/7"}'::jsonb),
+('hero_features_icons', '{"v": "✅|🚚|🔄"}'::jsonb),
+('hero_features_icons_urls', '{"v": "||"}'::jsonb),
+('hero_bottom_badges', '{"v": "🛡️ Cam kết chất lượng|📦 Giao hàng nhanh|💬 Hỗ trợ 24/7"}'::jsonb),
+('hero_bottom_icons_urls', '{"v": "||"}'::jsonb),
+('hero_price_label', '{"v": "GIÁ SỈ"}'::jsonb),
+('hero_price_value', '{"v": "TẬN GỐC"}'::jsonb),
+('hero_price_badge_img', '{"v": ""}'::jsonb)
 ON CONFLICT (key) DO NOTHING;

@@ -8,11 +8,27 @@ const DEFAULT_SETTINGS = {
   site_phone: '0900 000 000',
   site_email: 'lienhe@chodaumoi.vn',
   site_address: 'TP. Hồ Chí Minh',
+  site_logo: '',
+  site_logo_emoji: '🏪',
   shipping_free_min: 500000,
   shipping_note: 'Giao hàng toàn quốc',
   hero_title: 'NGUỒN HÀNG TẬN GỐC',
   hero_subtitle: 'GIÁ SỈ TỐT NHẤT',
   hero_features: 'Hàng tận gốc|Giao hàng toàn quốc|Đổi trả dễ dàng',
+  hero_features_subs: 'Nguồn gốc rõ ràng|Nhanh chóng tiện lợi|Hỗ trợ 24/7',
+  hero_features_icons: '✅|🚚|🔄',
+  hero_features_icons_urls: '||',
+  hero_bottom_badges: '🛡️ Cam kết chất lượng|📦 Giao hàng nhanh|💬 Hỗ trợ 24/7',
+  hero_bottom_icons_urls: '||',
+  hero_price_label: 'GIÁ SỈ',
+  hero_price_value: 'TẬN GỐC',
+  hero_price_badge_img: '',
+  hero_floating_icons: '🥬|🥕|🍅|🧅',
+  hero_floating_urls: '|||',
+  delivery_location: 'TP. Hồ Chí Minh 1',
+  feat_grid_labels: 'Đặt hàng|Giá tận gốc|Mua đầy|Dành cho',
+  feat_grid_subs: 'Mọi lúc|Tốt nhất|Tiện lợi|Tiểu thương',
+  feat_grid_icons_urls: '|||',
   promo_tag: 'MUA CÀNG NHIỀU',
   promo_title: 'GIÁ CÀNG RẺ',
   promo_desc: 'Chiết khấu đến 15%\ncho đơn từ',
@@ -44,6 +60,55 @@ export default function AdminCauHinh() {
   }, []);
 
   function showToast(msg: string, type = 'success') { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); }
+  
+  async function uploadImage(file: File): Promise<string> {
+    if (file.size > 2 * 1024 * 1024) throw new Error('File quá lớn (tối đa 2MB)');
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'settings');
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    return data.url;
+  }
+
+  async function handleIconUpload(e: React.ChangeEvent<HTMLInputElement>, key: string, index: number) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      showToast('Đang tải lên...', 'info');
+      const url = await uploadImage(file);
+      setSettings(prev => {
+        const currentUrls = ((prev as any)[key] || '||').split('|');
+        currentUrls[index] = url;
+        return { ...prev, [key]: currentUrls.join('|') };
+      });
+      showToast('Đã tải lên ảnh');
+    } catch (err: any) {
+      showToast(err.message || 'Lỗi upload', 'error');
+    }
+  }
+
+  async function handleSingleImageUpload(e: React.ChangeEvent<HTMLInputElement>, key: string) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      showToast('Đang tải lên...', 'info');
+      const url = await uploadImage(file);
+      setSettings(prev => ({ ...prev, [key]: url }));
+      showToast('Đã tải lên ảnh');
+    } catch (err: any) {
+      showToast(err.message || 'Lỗi upload', 'error');
+    }
+  }
+
+  function handlePartChange(key: string, index: number, newValue: string) {
+    setSettings(prev => {
+      const parts = ((prev as any)[key] || '||').split('|');
+      parts[index] = newValue;
+      return { ...prev, [key]: parts.join('|') };
+    });
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -94,6 +159,13 @@ export default function AdminCauHinh() {
             <label className="admin-label">Địa chỉ</label>
             <input className="admin-input" value={settings.site_address} onChange={e => setSettings({ ...settings, site_address: e.target.value })} />
           </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Logo chính - Hình ảnh (Bắt buộc)</label>
+            <div className="admin-image-upload-mini">
+              {settings.site_logo ? <img src={settings.site_logo} alt="" style={{ width: 44, height: 44, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Upload Logo</div>}
+              <input type="file" onChange={e => handleSingleImageUpload(e, 'site_logo')} accept="image/*" />
+            </div>
+          </div>
         </div></div>
       </div>
 
@@ -125,8 +197,128 @@ export default function AdminCauHinh() {
             <input className="admin-input" value={settings.hero_subtitle} onChange={e => setSettings({ ...settings, hero_subtitle: e.target.value })} />
           </div>
           <div className="admin-field admin-form-full">
-            <label className="admin-label">Tính năng (ngăn cách bởi &quot;|&quot;)</label>
-            <input className="admin-input" value={settings.hero_features} onChange={e => setSettings({ ...settings, hero_features: e.target.value })} placeholder="Hàng tận gốc|Giao hàng toàn quốc|Đổi trả dễ dàng" />
+            <label className="admin-label">Tính năng - Tiêu đề</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {[0, 1, 2].map(i => (
+                <input key={i} className="admin-input" value={settings.hero_features.split('|')[i] || ''} onChange={e => handlePartChange('hero_features', i, e.target.value)} placeholder={`Tiêu đề ${i+1}`} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Tính năng - Mô tả phụ</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {[0, 1, 2].map(i => (
+                <input key={i} className="admin-input" value={settings.hero_features_subs.split('|')[i] || ''} onChange={e => handlePartChange('hero_features_subs', i, e.target.value)} placeholder={`Mô tả ${i+1}`} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Tính năng - Icon Hình ảnh (Tải lên để thay thế Emoji)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 8 }}>
+              {[0, 1, 2].map(i => {
+                const urls = settings.hero_features_icons_urls.split('|');
+                return (
+                  <div key={i} className="admin-image-upload-mini">
+                    {urls[i] ? <img src={urls[i]} alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Icon {i+1}</div>}
+                    <input type="file" onChange={e => handleIconUpload(e, 'hero_features_icons_urls', i)} accept="image/*" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Dòng cam kết dưới banner</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {[0, 1, 2].map(i => (
+                <input key={i} className="admin-input" value={settings.hero_bottom_badges.split('|')[i] || ''} onChange={e => handlePartChange('hero_bottom_badges', i, e.target.value)} placeholder={`Cam kết ${i+1}`} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Dòng cam kết - Icon Hình ảnh</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 8 }}>
+              {[0, 1, 2].map(i => {
+                const urls = settings.hero_bottom_icons_urls.split('|');
+                return (
+                  <div key={i} className="admin-image-upload-mini">
+                    {urls[i] ? <img src={urls[i]} alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Badge {i+1}</div>}
+                    <input type="file" onChange={e => handleIconUpload(e, 'hero_bottom_icons_urls', i)} accept="image/*" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Badge Giá - Dòng 1</label>
+            <input className="admin-input" value={settings.hero_price_label} onChange={e => setSettings({ ...settings, hero_price_label: e.target.value })} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Badge Giá - Dòng 2</label>
+            <input className="admin-input" value={settings.hero_price_value} onChange={e => setSettings({ ...settings, hero_price_value: e.target.value })} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Badge Giá - Hình nền (Tùy chọn)</label>
+            <div className="admin-image-upload-mini">
+              {settings.hero_price_badge_img ? <img src={settings.hero_price_badge_img} alt="" style={{ width: 60, height: 60, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Upload</div>}
+              <input type="file" onChange={e => handleSingleImageUpload(e, 'hero_price_badge_img')} accept="image/*" />
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">4 Hình ảnh trôi nổi (Bắt buộc)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 8 }}>
+              {[0, 1, 2, 3].map(i => {
+                const urls = settings.hero_floating_urls.split('|');
+                return (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div className="admin-image-upload-mini">
+                      {urls[i] ? <img src={urls[i]} alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Ảnh {i+1}</div>}
+                      <input type="file" onChange={e => handleIconUpload(e, 'hero_floating_urls', i)} accept="image/*" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      {/* Features Grid & Delivery */}
+      <div className="admin-card" style={{ marginBottom: 16 }}>
+        <div className="admin-card-header"><span className="admin-card-title">Tính năng & Địa điểm (Trang chủ)</span></div>
+        <div className="admin-form"><div className="admin-form-grid">
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Địa điểm giao hàng mặc định</label>
+            <input className="admin-input" value={settings.delivery_location} onChange={e => setSettings({ ...settings, delivery_location: e.target.value })} />
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">4 Tính năng chính - Tiêu đề</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {[0, 1, 2, 3].map(i => (
+                <input key={i} className="admin-input" value={settings.feat_grid_labels.split('|')[i] || ''} onChange={e => handlePartChange('feat_grid_labels', i, e.target.value)} placeholder={`Label ${i+1}`} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">4 Tính năng chính - Mô tả phụ</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {[0, 1, 2, 3].map(i => (
+                <input key={i} className="admin-input" value={settings.feat_grid_subs.split('|')[i] || ''} onChange={e => handlePartChange('feat_grid_subs', i, e.target.value)} placeholder={`Sub ${i+1}`} />
+              ))}
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">4 Tính năng chính - Icon Hình ảnh</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 8 }}>
+              {[0, 1, 2, 3].map(i => {
+                const urls = settings.feat_grid_icons_urls.split('|');
+                return (
+                  <div key={i} className="admin-image-upload-mini">
+                    {urls[i] ? <img src={urls[i]} alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Icon {i+1}</div>}
+                    <input type="file" onChange={e => handleIconUpload(e, 'feat_grid_icons_urls', i)} accept="image/*" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div></div>
       </div>
