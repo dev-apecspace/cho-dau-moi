@@ -5,10 +5,12 @@ import { supabase } from '@/lib/supabase';
 const DEFAULT_SETTINGS = {
   site_name: 'Chợ Đầu Mới Nông Sản',
   site_subtitle: 'Nguồn hàng tận gốc - Giá sỉ tốt nhất',
+  site_description: 'Chợ Đầu Mới - Mua sắm hàng tận gốc, giá sỉ tốt nhất. Đặt hàng online, giao hàng toàn quốc, đổi trả dễ dàng 24/7.',
   site_phone: '0900 000 000',
   site_email: 'lienhe@chodaumoi.vn',
   site_address: 'TP. Hồ Chí Minh',
   site_logo: '',
+  site_favicon: '',
   site_logo_emoji: '🏪',
   shipping_free_min: 500000,
   shipping_note: 'Giao hàng toàn quốc',
@@ -147,6 +149,10 @@ export default function AdminCauHinh() {
             <label className="admin-label">Slogan</label>
             <input className="admin-input" value={settings.site_subtitle} onChange={e => setSettings({ ...settings, site_subtitle: e.target.value })} />
           </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Mô tả SEO (Meta Description)</label>
+            <textarea className="admin-input" rows={3} value={settings.site_description} onChange={e => setSettings({ ...settings, site_description: e.target.value })} style={{ resize: 'vertical' }} />
+          </div>
           <div className="admin-field">
             <label className="admin-label">Số điện thoại</label>
             <input className="admin-input" value={settings.site_phone} onChange={e => setSettings({ ...settings, site_phone: e.target.value })} />
@@ -164,6 +170,13 @@ export default function AdminCauHinh() {
             <div className="admin-image-upload-mini">
               {settings.site_logo ? <img src={settings.site_logo} alt="" style={{ width: 44, height: 44, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Upload Logo</div>}
               <input type="file" onChange={e => handleSingleImageUpload(e, 'site_logo')} accept="image/*" />
+            </div>
+          </div>
+          <div className="admin-field admin-form-full">
+            <label className="admin-label">Favicon (Biểu tượng thanh địa chỉ)</label>
+            <div className="admin-image-upload-mini">
+              {settings.site_favicon ? <img src={settings.site_favicon} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} /> : <div className="admin-image-placeholder">Upload Favicon</div>}
+              <input type="file" onChange={e => handleSingleImageUpload(e, 'site_favicon')} accept="image/*" />
             </div>
           </div>
         </div></div>
