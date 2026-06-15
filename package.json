@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3022",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:cloudinary": "node scripts/migrate-cloudinary-to-local.mjs",
+    "migrate:cloudinary:dry-run": "node scripts/migrate-cloudinary-to-local.mjs --dry-run",
+    "test:upload-paths": "node --test src/lib/upload-paths.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",

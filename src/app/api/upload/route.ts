@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import cloudinary from '@/lib/cloudinary';
+import path from 'path';
+import { mkdir, writeFile } from 'fs/promises';
+import { randomUUID } from 'crypto';
+import { localUploadUrl } from '@/lib/upload-paths';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,39 +17,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    console.log(`Uploading file: ${file.name} (${file.size} bytes) to folder: ${folder}`);
+    console.log(`Saving file locally: ${file.name} (${file.size} bytes) to folder: ${folder}`);
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const publicUrl = localUploadUrl(folder, file.name, randomUUID());
+    const relativePath = publicUrl.replace(/^\/+/, '').split('/');
+    const diskPath = path.join(process.cwd(), 'public', ...relativePath);
 
-    // Upload to Cloudinary using a Promise to handle the stream-based upload
-    const result = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: folder,
-          resource_type: 'auto',
-        },
-        (error, result) => {
-          try {
-            if (error) {
-              console.error('Cloudinary upload callback error:', error);
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          } catch (e) {
-            reject(e);
-          }
-        }
-      );
-      
-      uploadStream.end(buffer);
-    }) as any;
+    await mkdir(path.dirname(diskPath), { recursive: true });
+    await writeFile(diskPath, buffer);
 
-    console.log('Cloudinary upload success:', result.secure_url);
+    console.log('Local upload success:', publicUrl);
     return NextResponse.json({
-      url: result.secure_url,
-      public_id: result.public_id,
+      url: publicUrl,
+      public_id: publicUrl,
     });
   } catch (error: any) {
     console.error('Upload error:', error);

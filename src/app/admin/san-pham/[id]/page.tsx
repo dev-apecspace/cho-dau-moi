@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { isImageUrl } from '@/lib/upload-paths';
 
 interface Category { id: string; name: string; icon: string; parent_id: string | null; }
 interface Supplier { id: string; name: string; }
@@ -287,7 +288,7 @@ export default function AdminProductForm() {
                         if (!cat) return '— Chọn danh mục —';
                         return (
                           <>
-                            {cat.icon && cat.icon.startsWith('http') ? (
+                            {isImageUrl(cat.icon) ? (
                               <img src={cat.icon} alt="" className="admin-custom-select-img" />
                             ) : (
                               <span className="admin-custom-select-icon">{cat.icon || '📦'}</span>
@@ -314,7 +315,7 @@ export default function AdminProductForm() {
                         className={`admin-custom-select-option ${form.category_id === c.id ? 'selected' : ''}`}
                         onClick={() => { setForm({ ...form, category_id: c.id }); setCatOpen(false); }}
                       >
-                        {c.icon && c.icon.startsWith('http') ? (
+                        {isImageUrl(c.icon) ? (
                           <img src={c.icon} alt="" className="admin-custom-select-img" />
                         ) : (
                           <span className="admin-custom-select-icon">{c.icon || '📦'}</span>

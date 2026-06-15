@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { isImageUrl } from '@/lib/upload-paths';
 
 interface Category {
   id: string;
@@ -187,7 +188,7 @@ export default function AdminDanhMuc() {
                       </td>
                       <td>
                         <div className="admin-table-img">
-                          {parent.icon && parent.icon.startsWith('http') ? (
+                          {isImageUrl(parent.icon) ? (
                             <img src={parent.icon} alt={parent.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           ) : parent.icon}
                         </div>
@@ -211,7 +212,7 @@ export default function AdminDanhMuc() {
                         <td></td>
                         <td>
                           <div className="admin-table-img" style={{ marginLeft: 12 }}>
-                            {child.icon && child.icon.startsWith('http') ? (
+                            {isImageUrl(child.icon) ? (
                               <img src={child.icon} alt={child.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             ) : child.icon}
                           </div>
@@ -256,7 +257,7 @@ export default function AdminDanhMuc() {
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     <div style={{ width: 100, height: 100, borderRadius: 12, border: '2px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#f9f9f9', flexShrink: 0 }}>
                       {previewUrl ? (
-                        previewUrl.startsWith('http') || previewUrl.startsWith('blob') ? (
+                        isImageUrl(previewUrl) || previewUrl.startsWith('blob') ? (
                           <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : <span style={{ fontSize: 32 }}>{previewUrl}</span>
                       ) : <span style={{ fontSize: 32, color: '#ccc' }}>🖼️</span>}
@@ -276,7 +277,7 @@ export default function AdminDanhMuc() {
                   <select className="admin-select" value={form.parent_id} onChange={e => setForm({ ...form, parent_id: e.target.value })}>
                     <option value="">— Không (danh mục gốc) —</option>
                     {parentCategories.map(c => (
-                      <option key={c.id} value={c.id}>{c.icon && !c.icon.startsWith('http') ? c.icon : ''} {c.name}</option>
+                      <option key={c.id} value={c.id}>{c.icon && !isImageUrl(c.icon) ? c.icon : ''} {c.name}</option>
                     ))}
                   </select>
                 </div>

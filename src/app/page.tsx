@@ -8,6 +8,7 @@ import ScrollCarousel from '@/components/ui/ScrollCarousel';
 import LoadingNongSan from '@/components/ui/LoadingNongSan';
 import ComingSoonPopup from '@/components/ui/ComingSoonPopup';
 import { formatProductPrice } from '@/lib/price';
+import { isImageUrl } from '@/lib/upload-paths';
 
 interface Banner { id: string; title: string; subtitle: string; image_url: string; link_url: string; bg_gradient: string; emoji: string; }
 interface Category { id: string; icon: string; name: string; }
@@ -304,7 +305,7 @@ export default function HomePage() {
           {categories.map((c) => (
             <Link href={`/danh-muc/${c.id}`} key={c.id} className={styles.categoryItem} id={`category-${c.id}`}>
               <div className={styles.categoryIcon}>
-                {c.icon && c.icon.startsWith('http') ? (
+                {isImageUrl(c.icon) ? (
                   <img src={c.icon} alt={c.name} />
                 ) : c.icon}
               </div>
