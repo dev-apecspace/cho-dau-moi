@@ -58,7 +58,11 @@ function hashUrl(value) {
 function localUploadUrl(folder, filename, uniqueSuffix = Date.now().toString(36)) {
   const ext = extensionFrom(filename);
   const base = sanitizePathSegment(path.basename(String(filename), ext));
-  return `/uploads/${sanitizePathSegment(folder)}/${base}-${uniqueSuffix}${ext}`;
+  const folders = String(folder || '')
+    .split(/[\\/]+/)
+    .filter(Boolean)
+    .map(sanitizePathSegment);
+  return `/uploads/${[...folders, `${base}-${uniqueSuffix}${ext}`].join('/')}`;
 }
 
 function localCloudinaryUrl(cloudinaryUrl, contentType = '') {

@@ -28,6 +28,10 @@ test('sanitizes empty path segments to a safe fallback', () => {
   assert.equal(sanitizePathSegment('***'), 'file');
 });
 
+test('preserves safe nested upload folders', () => {
+  assert.equal(localUploadUrl('cloudinary/promotions/images', 'banner.png', 'abc123'), '/uploads/cloudinary/promotions/images/banner-abc123.png');
+});
+
 test('recognizes remote and local upload image URLs', () => {
   assert.equal(isImageUrl('https://res.cloudinary.com/demo/image/upload/v1/a.jpg'), true);
   assert.equal(isImageUrl('/uploads/cloudinary/categories/a.jpg'), true);

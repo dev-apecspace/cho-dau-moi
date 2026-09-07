@@ -9,6 +9,7 @@ const menuItems = [
   { href: '/admin/san-pham', label: 'Sản phẩm', icon: '📦' },
   { href: '/admin/danh-muc', label: 'Danh mục', icon: '🗂️' },
   { href: '/admin/banner', label: 'Banner', icon: '🖼️' },
+  { href: '/admin/quang-cao', label: 'Quảng cáo popup', icon: '📣' },
   { href: '/admin/nha-cung-cap', label: 'Nhà cung cấp', icon: '🏪' },
   { href: '/admin/voucher', label: 'Voucher', icon: '🎫' },
   { href: '/admin/uu-dai', label: 'Ưu đãi', icon: '⭐' },

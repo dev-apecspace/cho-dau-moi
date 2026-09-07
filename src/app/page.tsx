@@ -15,6 +15,20 @@ interface Category { id: string; icon: string; name: string; }
 interface Supplier { id: string; name: string; avatar_url: string; rating: number; product_count: number; }
 interface Product { id: string; name: string; slug: string; price: number; image_url?: string; rating: number; unit: string; min_order: string; }
 interface Deal { id: string; tag: string; emoji: string; bg_gradient: string; title: string; }
+interface Promotion { id: string; title: string; content_type: 'image' | 'video' | 'youtube'; media_url: string; link_url: string; }
+
+function getYouTubeEmbedUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    let id = parsed.searchParams.get('v');
+    if (!id && (parsed.hostname === 'youtu.be' || parsed.hostname.endsWith('.youtu.be'))) id = parsed.pathname.slice(1);
+    if (!id && parsed.pathname.includes('/embed/')) id = parsed.pathname.split('/embed/')[1]?.split('/')[0];
+    if (!id && parsed.pathname.includes('/shorts/')) id = parsed.pathname.split('/shorts/')[1]?.split('/')[0];
+    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0` : '';
+  } catch {
+    return '';
+  }
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -27,6 +41,9 @@ export default function HomePage() {
   const [flashBanners, setFlashBanners] = useState<Banner[]>([]);
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [settings, setSettings] = useState<Record<string, any>>({});
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [showAdPopup, setShowAdPopup] = useState(false);
+  const [adPopupIndex, setAdPopupIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [comingSoon, setComingSoon] = useState<{ open: boolean; feature: string }>({ open: false, feature: '' });
@@ -75,7 +92,8 @@ export default function HomePage() {
           { data: dealsData },
           { data: bestData },
           { data: settingsData },
-          { data: vouchersData }
+          { data: vouchersData },
+          { data: promotionsData }
         ] = await Promise.all([
           supabase.from('banners').select('*').eq('position', 'hero').eq('is_active', true).order('sort_order'),
           supabase.from('banners').select('*').eq('position', 'flash_sale').eq('is_active', true).order('sort_order').limit(3),
@@ -85,7 +103,8 @@ export default function HomePage() {
           supabase.from('deals').select('*').eq('is_active', true).order('sort_order').limit(10),
           supabase.from('products').select('*, product_images(image_url)').eq('is_best_seller', true).eq('is_active', true).order('sort_order').limit(8),
           supabase.from('site_settings').select('*'),
-          supabase.from('vouchers').select('*').eq('is_active', true).limit(5)
+          supabase.from('vouchers').select('*').eq('is_active', true).limit(5),
+          supabase.from('promotions').select('*').eq('is_active', true).order('sort_order')
         ]);
 
         if (settingsData) {
@@ -99,6 +118,8 @@ export default function HomePage() {
         setBanners(bannersData || []);
         setFlashBanners(flashData || []);
         setVouchers(vouchersData || []);
+        setPromotions(promotionsData || []);
+        setShowAdPopup((promotionsData || []).length > 0);
         setCategories(catsData || []);
         setWholesalers(supsData || []);
         
@@ -132,9 +153,35 @@ export default function HomePage() {
   if (loading) return <LoadingNongSan text="Hàng tươi đang đến..." items={["🥬", "🥕", "🍅"]} />;
 
   const activeBanner = banners[0];
+  const activePromotion = promotions[adPopupIndex];
+  const youtubeEmbedUrl = activePromotion?.content_type === 'youtube' ? getYouTubeEmbedUrl(activePromotion.media_url) : '';
+  const closeCurrentPromotion = () => {
+    if (adPopupIndex < promotions.length - 1) {
+      setAdPopupIndex(index => index + 1);
+      return;
+    }
+    setShowAdPopup(false);
+  };
 
   return (
     <div className={styles.page}>
+      {showAdPopup && activePromotion && (
+        <div className={styles.adPopupOverlay} role="dialog" aria-modal="true" aria-label="Quảng cáo">
+          <div className={styles.adPopup}>
+            <button className={styles.adPopupClose} onClick={closeCurrentPromotion} aria-label="Đóng quảng cáo">×</button>
+            {activePromotion.content_type === 'video' ? (
+              <video className={styles.adPopupMedia} src={activePromotion.media_url} controls autoPlay muted playsInline />
+            ) : activePromotion.content_type === 'youtube' && youtubeEmbedUrl ? (
+              <iframe className={styles.adPopupMedia} src={youtubeEmbedUrl} title="Video quảng cáo" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+            ) : (
+              <img className={styles.adPopupMedia} src={activePromotion.media_url} alt={activePromotion.title} />
+            )}
+            {activePromotion.link_url && (
+              <a className={styles.adPopupCta} href={activePromotion.link_url} target={activePromotion.link_url.startsWith('http') ? '_blank' : undefined} rel="noreferrer">Xem chi tiết</a>
+            )}
+          </div>
+        </div>
+      )}
       {/* ── Header ── */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
