@@ -24,7 +24,7 @@ function getYouTubeEmbedUrl(url: string) {
     if (!id && (parsed.hostname === 'youtu.be' || parsed.hostname.endsWith('.youtu.be'))) id = parsed.pathname.slice(1);
     if (!id && parsed.pathname.includes('/embed/')) id = parsed.pathname.split('/embed/')[1]?.split('/')[0];
     if (!id && parsed.pathname.includes('/shorts/')) id = parsed.pathname.split('/shorts/')[1]?.split('/')[0];
-    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0` : '';
+    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1&mute=1&playsinline=1` : '';
   } catch {
     return '';
   }

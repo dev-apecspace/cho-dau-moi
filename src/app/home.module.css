@@ -1050,6 +1050,20 @@
   object-fit: contain;
 }
 
+.adPopup iframe.adPopupMedia,
+.adPopup video.adPopupMedia {
+  height: auto;
+  min-height: 210px;
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 380px) {
+  .adPopup iframe.adPopupMedia,
+  .adPopup video.adPopupMedia {
+    min-height: 190px;
+  }
+}
+
 .adPopupClose {
   position: absolute;
   z-index: 1;
