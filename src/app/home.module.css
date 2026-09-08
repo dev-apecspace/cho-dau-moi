@@ -1035,7 +1035,7 @@
   position: relative;
   width: min(calc(100vw - 24px), 430px);
   max-height: 88vh;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 16px;
   background: #000;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.42);
@@ -1047,6 +1047,7 @@
   max-height: 82vh;
   min-height: 0;
   border: 0;
+  border-radius: 16px;
   object-fit: contain;
 }
 
@@ -1067,8 +1068,8 @@
 .adPopupClose {
   position: absolute;
   z-index: 1;
-  top: 9px;
-  right: 9px;
+  top: -44px;
+  right: 0;
   width: 34px;
   height: 34px;
   padding: 0;
